@@ -7,4 +7,9 @@ export class AppController {
     hello() {
         return "1"
     }
+
+    @Get("/apple")
+    apple() {
+        return "1"
+    }
 }
