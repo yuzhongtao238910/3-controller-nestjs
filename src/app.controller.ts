@@ -1,14 +1,14 @@
 import { Controller, Get } from "@nestjs/common";
 
 
-@Controller("/")
+@Controller("cats")
 export class AppController {
-    @Get("/")
+    @Get("hello")
     hello() {
         return "1"
     }
 
-    @Get("/apple")
+    @Get("apple")
     apple() {
         return "1"
     }
