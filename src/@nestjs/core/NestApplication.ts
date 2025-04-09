@@ -1,7 +1,9 @@
 import "reflect-metadata"
 
 import { Logger } from "./logger";
-import express, { Express } from "express"
+import express, { Express, Request as ExpressRequest, Response as ExpressResponse, 
+    NextFunction  } from "express"
+import path from "path"
 export class NestApplication {
     // 在内部私有化一个express实例
     private readonly app: Express = express()
@@ -21,12 +23,35 @@ export class NestApplication {
         for (const Controller of controllers) {
 
             // 创建控制器实例
-            const controllerInstance = new Controller()
+            const controller = new Controller()
             // 获取控制器类的路径前缀
             const prefix = Reflect.getOwnMetadata("prefix", Controller) || ''
             // 开始路由解析
             Logger.log(`${Controller.name} ${prefix}`, "RoutesResolver")
-            
+
+            const controllerPrototype = Reflect.getPrototypeOf(controller)
+
+            for (const methodName of Object.getOwnPropertyNames(controllerPrototype)) {
+                // console.log(methodName)
+                const method = controllerPrototype[methodName]
+                // 获取此函数上绑定的方法名字的元数据
+                const httpMethod = Reflect.getMetadata("method", method)
+                // 获取此函数上绑定的路径的元数据
+                const pathMetaData = Reflect.getMetadata("path", method)
+
+                // 如果方法名字不存在，那么就不处理了
+                if (!httpMethod) {
+                    continue
+                }
+                const routePath = path.posix.join("/", prefix, pathMetaData)
+                // 配置路由，当客户端以httpMethod请求的时候会有对应的函数来进行处理
+                this.app[httpMethod.toLowerCase()](routePath, (req: ExpressRequest, res: ExpressResponse, next: NextFunction) => {
+                    const result = method.call(controller, req, res, next)
+                    res.send(result)
+                })
+                Logger.log(`Mapped {${routePath}, ${httpMethod}}`, "RoutesResolver")
+            }
+            Logger.log(` Nest application successfully started`, "NestApplication")
         }
     }
 
@@ -41,3 +66,4 @@ export class NestApplication {
         })
     }
 }
+

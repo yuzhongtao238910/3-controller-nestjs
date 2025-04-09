@@ -18,3 +18,5 @@ export function Get(path: string = ""): MethodDecorator {
         // descriptor.value.method = "GET" 等价于这个写法，但是这样写就是会污染原先的数据
     }
 }
+
+

@@ -12,7 +12,7 @@ class Logger {
         const timeDiff = curretnTime - Logger.lastLogTime
         
         // 第三步，打印日志
-        console.log(`[${clc.green('Nest')}]  ${clc.green(pid)} - ${clc.yellow(timestamp)}    ${clc.green('LOG')} [${clc.yellow(context)}] ${clc.green(message)} +${timeDiff}ms`)
+        console.log(`[${clc.green('Nest')}]  ${clc.green(pid)} - ${clc.yellow(timestamp)}    ${clc.green('LOG1')} [${clc.yellow(context)}] ${clc.green(message)} +${timeDiff}ms`)
         
         Logger.lastLogTime = curretnTime
     }

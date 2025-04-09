@@ -13,3 +13,4 @@ export function Module(metadata: ModuleMetadata): ClassDecorator {
         Reflect.defineMetadata("controllers", metadata.controllers, target)
     }
 }
+

@@ -1,15 +1,16 @@
 import { Controller, Get } from "@nestjs/common";
 
 
-@Controller("cats")
+@Controller("")
 export class AppController {
     @Get("hello")
-    hello() {
-        return "1"
+    hello(...args: any[]) {
+        console.log(args)
+        return "hello"
     }
 
     @Get("apple")
     apple() {
-        return "1"
+        return "apple"
     }
 }
