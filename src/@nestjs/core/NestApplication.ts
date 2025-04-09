@@ -8,6 +8,10 @@ export class NestApplication {
     // 在内部私有化一个express实例
     private readonly app: Express = express()
 
+    use(middleware) {
+        this.app.use(middleware)
+    }
+
     // 启动Nestjs
     constructor(protected readonly module) {
         // 启动Nestjs
@@ -46,13 +50,48 @@ export class NestApplication {
                 const routePath = path.posix.join("/", prefix, pathMetaData)
                 // 配置路由，当客户端以httpMethod请求的时候会有对应的函数来进行处理
                 this.app[httpMethod.toLowerCase()](routePath, (req: ExpressRequest, res: ExpressResponse, next: NextFunction) => {
-                    const result = method.call(controller, req, res, next)
+                    const args = this.resolveParams(controller, method, methodName, req, res, next)
+                    const result = method.call(controller, ...args)
                     res.send(result)
                 })
                 Logger.log(`Mapped {${routePath}, ${httpMethod}}`, "RoutesResolver")
             }
             Logger.log(` Nest application successfully started`, "NestApplication")
         }
+    }
+
+    resolveParams(target: any, method: any, methodName: any, req: ExpressRequest, res: ExpressResponse, next: NextFunction) {
+
+        const existingParameters = Reflect.getMetadata("params", Reflect.getPrototypeOf(target), methodName)
+
+
+        let temp = existingParameters
+        if (existingParameters && existingParameters.length) {
+            // temp = existingParameters.sort((a, b) => a.parameterIndex - b.parameterIndex)
+        }
+        
+
+        return temp.map((item, index) => {
+            const {key, data} = item
+            switch (key) {
+                case "Req":
+                case "Request":
+                    return req
+                case "Query":
+                    return data ? req.query[data] : req.query
+                case "Headers":
+                    return data ? req.headers[data] : req.headers
+                case "Session":
+                    return data ? req.session[data] : req.session
+                case "Ip":
+                    return req.ip
+                case "Param":
+                    return data ? req.params[data] : req.params
+                default:
+                    return null
+            }
+        })
+        // .filter(item => item)
     }
 
 
