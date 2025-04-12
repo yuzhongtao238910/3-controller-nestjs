@@ -1,7 +1,7 @@
 import "reflect-metadata"
 
 
-export const createParamDecorator = (key: string) => {
+export const createParamDecorator = (keyOrFactory: String  | Function ) => {
     return function (data?: any) {
         // 执行的时候是从右到左
         return function (target: Object, propertyKey: string, parameterIndex: number) {
@@ -14,12 +14,27 @@ export const createParamDecorator = (key: string) => {
             //     key
             // })
 
-            // 这样写是去解决 handleRequest(@Request() request: ExpressRequest, age: number, @Req() req: ExpressRequest)
-            existingParameters[parameterIndex] = {
-                parameterIndex,
-                key,
-                data
+            // 如果传递过来的是一个函数的话，会存放参数索引，key定死为装饰器工厂，
+            if (keyOrFactory instanceof Function) {
+                // 这里面就是自定义装饰器了
+                existingParameters[parameterIndex] = {
+                    parameterIndex,
+                    key: "DecoratorFactory",
+                    factory: keyOrFactory,
+                    data
+                }
+
+
+            } else {
+                // 这样写是去解决 handleRequest(@Request() request: ExpressRequest, age: number, @Req() req: ExpressRequest)
+                existingParameters[parameterIndex] = {
+                    parameterIndex,
+                    key: keyOrFactory,
+                    data
+                }
             }
+
+            
 
 
             // existingParameters[parameterIndex] = key
@@ -45,3 +60,11 @@ export const Ip = createParamDecorator("Ip")
 
 // Param
 export const Param = createParamDecorator("Param") 
+
+export const Body = createParamDecorator("Body")
+
+export const Res = createParamDecorator("Res")
+export const Response = createParamDecorator("Response")
+
+
+export const Next = createParamDecorator("Next")
